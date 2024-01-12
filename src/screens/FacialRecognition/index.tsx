@@ -5,8 +5,11 @@ import { ActivityIndicator, Text, Button } from 'react-native-paper';
 import { Asset, launchCamera } from 'react-native-image-picker';
 import { Image, View } from 'react-native';
 
+import { useBluetooth } from '../../hooks/bluetooth';
+
 export function FacialRecognition() {
   const { navigate } = useNavigation();
+  const { sendData } = useBluetooth();
 
   const [image, setImage] = useState<Asset | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,13 +23,16 @@ export function FacialRecognition() {
       .then(response => {
         if (response.assets && response.assets.length > 0) {
           setImage(response.assets[0]);
+
+          sendData(1);
+
           setIsLoading(false);
         }
       })
       .catch(error => {
         console.error(error);
       });
-  }, []);
+  }, [sendData]);
 
   if (isLoading || !image) {
     return (
