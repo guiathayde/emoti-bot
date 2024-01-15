@@ -6,9 +6,15 @@ import React, {
 } from 'react';
 import { NativeModules, PermissionsAndroid } from 'react-native';
 
+export interface PairedDevice {
+  address: string;
+  name: string;
+}
+
 interface BluetoothContextData {
   requestBluetoothPermission: () => Promise<boolean>;
-  connectBluetooth: () => Promise<void>;
+  getPairedDevices: () => Promise<PairedDevice[]>;
+  startBluetoothServer: (address: string, name: string) => Promise<void>;
   sendData: (data: number) => Promise<void>;
 }
 
@@ -69,43 +75,14 @@ export function BluetoothProvider({ children }: BluetoothProviderProps) {
     }
   }, []);
 
-  const connectBluetooth = useCallback(async () => {
-    BluetoothModule.getPairedDevices()
-      .then((devices: any[]) => {
-        console.log('Dispositivos pareados:', devices);
-
-        BluetoothModule.startBluetoothServer(
-          devices[0].address,
-          devices[0].name,
-        )
-          .then((response: any) => {
-            console.log('Conexão estabelecida:', response);
-          })
-          .catch((error: any) => {
-            console.error('Erro ao estabelecer conexão:', error);
-          });
-      })
-      .catch((error: any) => {
-        console.error('Erro ao obter dispositivos pareados:', error);
-      });
-  }, [BluetoothModule]);
-
-  const sendData = useCallback(
-    async (data: number) => {
-      BluetoothModule.sendData(data)
-        .then((response: any) => {
-          console.log('Dados enviados:', response);
-        })
-        .catch((error: any) => {
-          console.error('Erro ao enviar dados:', error);
-        });
-    },
-    [BluetoothModule],
-  );
-
   return (
     <BluetoothContext.Provider
-      value={{ requestBluetoothPermission, connectBluetooth, sendData }}
+      value={{
+        requestBluetoothPermission,
+        getPairedDevices: BluetoothModule.getPairedDevices,
+        startBluetoothServer: BluetoothModule.startBluetoothServer,
+        sendData: BluetoothModule.sendData,
+      }}
     >
       {children}
     </BluetoothContext.Provider>

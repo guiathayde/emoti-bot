@@ -24,7 +24,7 @@ export function FacialRecognition() {
         if (response.assets && response.assets.length > 0) {
           setImage(response.assets[0]);
 
-          sendData(1);
+          // sendData(1);
 
           setIsLoading(false);
         }
